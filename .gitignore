@@ -1,0 +1,3 @@
+# Environment config (contains API keys)
+.env
+js/config.js
