@@ -117,8 +117,71 @@
       </div>
       <!-- Page Header End -->
 
-
-       
+      <!-- Appointment Start -->
+      <div class="container-xxl py-5">
+        <div class="container">
+          <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+            <h1 class="mb-3">Book An Appointment</h1>
+            <p>Schedule a visit to our school. Fill in the form below and we'll get back to you to confirm your appointment.</p>
+          </div>
+          <div class="bg-light rounded">
+            <div class="row g-0">
+              <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                <div class="h-100 d-flex flex-column justify-content-center p-5">
+                  <form id="appointmentForm">
+                    <div class="row g-3">
+                      <div class="col-sm-6">
+                        <div class="form-floating">
+                          <input type="text" class="form-control border-0" id="gname" name="guardian_name" placeholder="Parent/Guardian Name" required />
+                          <label for="gname">Parent/Guardian Name</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-floating">
+                          <input type="email" class="form-control border-0" id="gmail" name="guardian_email" placeholder="Parent/Guardian Email" required />
+                          <label for="gmail">Parent/Guardian Email</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-floating">
+                          <input type="text" class="form-control border-0" id="cname" name="child_name" placeholder="Child Name" required />
+                          <label for="cname">Child Name</label>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-floating">
+                          <input type="text" class="form-control border-0" id="cage" name="child_age" placeholder="Child Age" />
+                          <label for="cage">Child Age</label>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <div class="form-floating">
+                          <textarea class="form-control border-0" placeholder="Leave a message here" id="message" name="message" style="height: 100px"></textarea>
+                          <label for="message">Message</label>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <button class="btn btn-primary w-100 py-3" type="submit" id="submitBtn">Book Appointment</button>
+                      </div>
+                    </div>
+                  </form>
+                  <!-- Success message (hidden by default) -->
+                  <div id="successMsg" class="text-center py-4" style="display: none;">
+                    <h3 class="text-success">Thank You!</h3>
+                    <p>Your appointment request has been submitted. We'll contact you shortly to confirm.</p>
+                    <button class="btn btn-outline-primary" onclick="resetForm()">Book Another Appointment</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s" style="min-height: 400px;">
+                <div class="position-relative h-100">
+                  <img class="position-absolute w-100 h-100 rounded" src="img/appointment.jpg" style="object-fit: cover;" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Appointment End -->
 
       <!-- Footer Start -->
@@ -185,8 +248,8 @@
                             &copy; <a class="border-bottom" href="#">studyhubmontessoryschool.com</a>, All Right Reserved. 
 							
 							<!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-							Designed By <a class="border-bottom" href="https:lumenware.com.ng">Lumenware Technologies</a>
-                            
+							Designed By <a class="border-bottom" href="https://lumenware.com.ng">Lumenware Technologies</a>
+                        </div>
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">
                                 <a href="">Home</a>
@@ -216,6 +279,92 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+
+    <!-- Custom Toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+        <div id="customToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center">
+                    <i id="toastIcon" class="me-2"></i>
+                    <span id="toastMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Environment Config -->
+    <script src="js/config.js"></script>
+
+    <!-- useEducator Forms SDK (loaded dynamically from config) -->
+    <script>
+        (function() {
+            var s = document.createElement('script');
+            s.src = ENV.UE_FORMS_SDK_URL;
+            s.onload = function() { window.dispatchEvent(new Event('ue-sdk-ready')); };
+            document.head.appendChild(s);
+        })();
+    </script>
+
+    <!-- Appointment Form Submission -->
+    <script>
+        function showToast(message, type) {
+            var toastEl = document.getElementById('customToast');
+            var toastMsg = document.getElementById('toastMessage');
+            var toastIcon = document.getElementById('toastIcon');
+            toastMsg.textContent = message;
+            toastEl.className = 'toast align-items-center border-0';
+            if (type === 'success') {
+                toastEl.classList.add('text-white', 'bg-success');
+                toastIcon.className = 'fas fa-check-circle me-2';
+            } else {
+                toastEl.classList.add('text-white', 'bg-danger');
+                toastIcon.className = 'fas fa-exclamation-circle me-2';
+            }
+            var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            toast.show();
+        }
+
+        var appointmentForm, submitBtn, successMsg;
+
+        window.addEventListener('ue-sdk-ready', function() {
+            UEForms.init(ENV.UE_FORMS_API_KEY, {
+                baseUrl: ENV.UE_FORMS_BASE_URL,
+                env: ENV.UE_FORMS_ENV || 'prod'
+            });
+
+            appointmentForm = document.getElementById('appointmentForm');
+            submitBtn = document.getElementById('submitBtn');
+            successMsg = document.getElementById('successMsg');
+
+            appointmentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
+
+                const formData = new FormData(appointmentForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const result = await UEForms.submit(data);
+                    appointmentForm.style.display = 'none';
+                    successMsg.style.display = 'block';
+                    showToast('Appointment request submitted successfully!', 'success');
+                } catch (err) {
+                    showToast(err.message || 'Submission failed. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Book Appointment';
+                }
+            });
+        });
+
+        function resetForm() {
+            appointmentForm.reset();
+            appointmentForm.style.display = 'block';
+            successMsg.style.display = 'none';
+        }
+    </script>
 </body>
 
 </html>
